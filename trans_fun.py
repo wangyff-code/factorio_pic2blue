@@ -4,6 +4,104 @@ import base64
 import zlib
 import os
 from fac_dir import *
+import numpy as np
+
+class gen_solar_station():
+    def __init__(self,flam):
+        self.item_list = []
+        self.ground_list = []
+        self.id = 0
+        self.flam = flam
+
+    def gen_block(self,name,x,y):
+        so_dir["entity_number"] = self.id 
+        so_dir['position']['x'] = x
+        so_dir['position']['y'] = y
+        so_dir['name'] = name
+        self.id += 1
+        self.item_list.append(copy.deepcopy(so_dir))
+
+    def gen_ground(self,name,x,y):
+        block_dir['position']['x'] = x
+        block_dir['position']['y'] = y
+        block_dir['name'] = name
+        self.ground_list.append(copy.deepcopy(block_dir))
+
+    def gen_solarBlock(self,px, py):
+        for i in range(0, 2):
+            for k in range(0, 2):
+                self.gen_block("solar-panel",px+i*3+0.5, py+k*3+0.5)
+
+
+    def gen_powerBlock0(self,px, py):
+        temp = np.array([[0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 1, 1, 0, 0],
+                        [0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0],]
+                        )
+        for i in range(0, 6):
+            for k in range(0, 6):
+                if temp[i][k] == 0:
+                    self.gen_ground('stone-path',px+i, py+k)
+        self.gen_block('substation',px+2.5, py+2.5)
+
+
+    def gen_powerBlock1(self,px, py):
+        for i in range(0, 3):
+            for k in range(0, 3):
+                if i != 1 or k != 1:
+                    self.gen_block('accumulator',px+i*2+0.5, py+k*2+0.5)
+        self.gen_block('substation',px+2.5, py+2.5)
+
+
+    def gen_batteryBlock(self,px, py):
+        for i in range(0, 3):
+            for k in range(0, 3):
+                self.gen_block('accumulator',px+i*2+0.5, py+k*2+0.5)
+
+    def gen_SolarStation(self,flam):
+        x, y = flam.shape
+        hx = x*3
+        hy = y*3
+        for i in range(0, x):
+            for k in range(0, y):
+                if i % 3 == 0 and k % 3 == 0:
+                    if(flam[i][k] == 0):
+                        self.gen_powerBlock0(i*6-hx, k*6-hy)
+                    else:
+                        self.gen_powerBlock1(i*6-hx, k*6-hy)
+                else:
+                    if(flam[i][k] == 0):
+                        self.gen_solarBlock(i*6-hx, k*6-hy)
+                    else:
+                        self.gen_batteryBlock(i*6-hx, k*6-hy)
+
+
+
+
+
+    def strat_trans(self):
+            self.gen_SolarStation(self.flam)
+            # self.gen_solarBlock(0,0)
+            # self.gen_batteryBlock(6,0)
+            so_bdy_dir['blueprint']['entities'] = self.item_list
+            so_bdy_dir['blueprint']['tiles'] = self.ground_list
+            self.pack_dir(so_bdy_dir)
+
+    def pack_dir(self,dir_data):
+            data = json.dumps(dir_data)
+            data.replace(' ','')
+            data.replace('\n','')
+            st = data.encode('utf-8')
+            st = zlib.compress(st)
+            out = base64.b64encode(st).decode()
+            out = '0' + out
+            f = open('output.txt','w')
+            f.write(out)
+            f.close()
+            os.startfile(r'output.txt')
 
 
 class gen_mat():
@@ -49,14 +147,18 @@ class gen_mat():
             return item_list
 
     def strat_trans(self):
-        if gen_type == 0:
+        if self.gen_type == 0:
             item_list=self.gen_block_sig()
-        if gen_type == 1:
+        if self.gen_type == 1:
             item_list=self.gen_block_dou(point_list,item_list[0],item_list[1])
+        if self.gen_type == 2:
+            gen_s = gen_solar_station(self.point_list.T)
+            gen_s.strat_trans()
+            return
         body_dir['blueprint']['tiles'] = item_list
         self.pack_dir(body_dir)
 
-    def pack_dir(self.dir_data):
+    def pack_dir(self,dir_data):
         data = json.dumps(dir_data)
         data.replace(' ','')
         data.replace('\n','')

@@ -129,6 +129,7 @@ def conf(win,picvar,number1,number2):
     global item_name
     item_list = [item_dir[number1.get()],item_dir[number2.get()]]
     gen_type = picvar.get()
+    print(gen_type)
     item_name = gen_type,item_list
     win.destroy()
 
