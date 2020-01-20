@@ -1,5 +1,5 @@
 import tkinter as tk
-import cv2
+import cv2 as cv 
 from PIL import Image,ImageTk
 from tkinter import filedialog
 import numpy as np
@@ -8,7 +8,8 @@ import  threading
 import tkinter.messagebox
 import os
 import numba
-
+import json
+import webbrowser
 
 from trans_fun import gen_mat
 
@@ -30,8 +31,8 @@ def show_tkimg(img,zoon):
     x *=t
     y *=t
     dim = (int(y),int(x))
-    resize = cv2.resize(img, dim, interpolation = cv2.INTER_AREA)
-    img_rgb = cv2.cvtColor(resize, cv2.COLOR_BGR2RGB)
+    resize = cv.resize(img, dim, interpolation = cv.INTER_AREA)
+    img_rgb = cv.cvtColor(resize, cv.COLOR_BGR2RGB)
     img = Image.fromarray(img_rgb)
     tkImage = ImageTk.PhotoImage(image=img)
     return tkImage
@@ -42,7 +43,7 @@ def openfiles2(label_img,window):
     global or_img
     global v0
     s2fname = filedialog.askopenfilename(title='打开图片文件', filetypes=[('jpg', '*.jpg'), ('All Files', '*')])
-    or_img=cv2.imdecode(np.fromfile(s2fname,dtype=np.uint8),-1)
+    or_img=cv.imdecode(np.fromfile(s2fname,dtype=np.uint8),-1)
     tkImage=show_tkimg(or_img,v0.get())
     label_img.configure(image= tkImage)
     label_img.image = tkImage
@@ -73,6 +74,9 @@ def start_go():
     t.start()
     tkinter.messagebox.showinfo('提示','正在转换，请稍后\n转换完成后会再TXT中打开结果\n也可以自己打开output.txt')
 
+def github():
+    webbrowser.open("https://github.com/wangyff-code/factorio_pic2blue", new=0)
+    pass
 
 def up_img(*age):
     global or_img
@@ -83,20 +87,20 @@ def up_img(*age):
     x*= v1.get()/100.0
     y*= v1.get()/100.0
     dim = (int(y), int(x))
-    resize = cv2.resize(or_img, dim, interpolation = cv2.INTER_AREA)
+    resize = cv.resize(or_img, dim, interpolation = cv.INTER_AREA)
     if v5.get() != 0:
-        img_GaussianBlur=cv2.GaussianBlur(resize,(v5.get()*2+1,v5.get()*2+1),0)
+        img_GaussianBlur=cv.GaussianBlur(resize,(v5.get()*2+1,v5.get()*2+1),0)
     else:
         img_GaussianBlur = resize
-    Can = cv2.Canny(img_GaussianBlur, int(v3.get()), int(v4.get()))
-    gray=cv2.cvtColor(resize,cv2.COLOR_BGR2GRAY)
+    Can = cv.Canny(img_GaussianBlur, int(v3.get()), int(v4.get()))
+    gray=cv.cvtColor(resize,cv.COLOR_BGR2GRAY)
     temp = int(v2.get())
     if temp >= 255:
-        ret,im_fixed=cv2.threshold(gray,temp-255,255,cv2.THRESH_BINARY)
+        ret,im_fixed=cv.threshold(gray,temp-255,255,cv.THRESH_BINARY)
         out_img = add_can_img(Can,im_fixed)
-        out_img = cv2.bitwise_not(out_img)
+        out_img = cv.bitwise_not(out_img)
     else:
-        ret,im_fixed=cv2.threshold(gray,temp,255,cv2.THRESH_BINARY)
+        ret,im_fixed=cv.threshold(gray,temp,255,cv.THRESH_BINARY)
         out_img = add_can_img(Can,im_fixed)
     tkImage=show_tkimg(out_img,v0.get())
     label_img2.configure(image= tkImage)
@@ -125,25 +129,23 @@ def tras():
     gen.strat_trans()
     
 
-def conf(win,picvar,number1,number2):
+def conf(win,picvar,number1,number2,number3,et):
     global item_name
-    item_list = [item_dir[number1.get()],item_dir[number2.get()]]
+    try:
+        k = float(et.get())
+    except:
+        k=1
+    item_list = [item_dir[number1.get()],item_dir[number2.get()],k]
     gen_type = picvar.get()
     print(gen_type)
     item_name = gen_type,item_list
     win.destroy()
-
-
-
-
 
 def set_item():
     global item_name
     
     win = tk.Toplevel()
     win.title("材质设置") 
-    # win.geometry('200x80')
-
     f1 = tk.Frame(win)
   
     picvar = tk.IntVar()
@@ -178,27 +180,34 @@ def set_item():
 
     numberChosen1 = ttk.Combobox(f1, width=10, height=10, textvariable=number1)
     numberChosen1['values'] = ("石砖","标准混凝土","标准混凝土(标识)","钢筋混凝土","钢筋混凝土(标识)","填海料")   
-    numberChosen1.current(0)
     numberChosen1.grid(row = 1,column = 2)
 
 
     number3 = tk.StringVar()
-    numberChosen3 = ttk.Combobox(f1, width=10, height=10, textvariable=number3)
-    numberChosen3['values'] = ("灯","太阳能-电池")   
-    numberChosen3.current(0)
-    numberChosen3.grid(row = 2,column = 2)
-
+    number3.set("太阳能-电池")
+    numberChosen1 = ttk.Combobox(f1, width=10, height=10, textvariable=number3)
+    numberChosen1['values'] = ("太阳能-电池")   
+    numberChosen1.grid(row = 2,column = 2)
 
     l = tk.Label(f1, text="   材质2：", bg="pink", font=("Arial",10),width=15)
     l.grid(row = 1,column = 3)
 
+    l = tk.Label(f1, text="   电池/太阳能 =", bg="pink", font=("Arial",10),width=15)
+    l.grid(row = 2,column = 3)
+
+    et = tk.Entry(f1)
+    et.grid(row = 2,column = 4)
+    et.insert(0,'1')
     number2 = tk.StringVar()
     numberChosen2 = ttk.Combobox(f1, width=10, height=10, textvariable=number2)
     numberChosen2['values'] = ("石砖","标准混凝土","标准混凝土(标识)","钢筋混凝土","钢筋混凝土(标识)","填海料")   
     numberChosen2.current(0)
     numberChosen2.grid(row = 1,column = 4)
 
-    b1=tk.Button(f1, text='确定', width=4, height=2,command=lambda :conf(win,picvar,number1,number2))
+
+
+
+    b1=tk.Button(f1, text='确定', width=4, height=2,command=lambda :conf(win,picvar,number1,number2,number3,et))
     b1.grid(row = 3,column = 0)
     f1.pack()
  
@@ -276,12 +285,12 @@ s1.pack()
 fm2 = tk.Frame(window)
 
 f_1 = tk.Frame(fm2)
-
 l = tk.Label(f_1, text="缩放比例", bg="pink", font=("Arial",10), width=7, height=1)
 l.pack(side = tk.LEFT)
 v1=tk.IntVar()
 s1 = tk.Scale(f_1,from_=1,to=100,length=800,orient=tk.HORIZONTAL,variable=v1,command=up_img)
 s1.pack(side = tk.LEFT)
+
 
 
 f_1.pack()
@@ -332,9 +341,8 @@ p1["maximum"] = 100
 p1["value"] = 0
 
 fm3.pack(side =tk.BOTTOM)
-
-
-
+com = tk.Button(window,text = '支持一下，点击进入github',command=github) 
+com.pack(side = tk.BOTTOM)
 
 add_can_img(np.zeros((100,100),dtype=np.uint8),np.zeros((100,100),dtype=np.uint8))
 init()

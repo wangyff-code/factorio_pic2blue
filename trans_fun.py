@@ -7,7 +7,11 @@ from fac_dir import *
 import numpy as np
 
 class gen_solar_station():
-    def __init__(self,flam):
+    def __init__(self,flam,k_balance,p1):
+        self.p1 = p1
+        self.k_balance = k_balance
+        self.solar_number = 0
+        self.battery_number = 0
         self.item_list = []
         self.ground_list = []
         self.id = 0
@@ -28,6 +32,7 @@ class gen_solar_station():
         self.ground_list.append(copy.deepcopy(block_dir))
 
     def gen_solarBlock(self,px, py):
+        self.solar_number += 4
         for i in range(0, 2):
             for k in range(0, 2):
                 self.gen_block("solar-panel",px+i*3+0.5, py+k*3+0.5)
@@ -49,6 +54,7 @@ class gen_solar_station():
 
 
     def gen_powerBlock1(self,px, py):
+        self.battery_number +=8
         for i in range(0, 3):
             for k in range(0, 3):
                 if i != 1 or k != 1:
@@ -57,15 +63,47 @@ class gen_solar_station():
 
 
     def gen_batteryBlock(self,px, py):
+        self.battery_number +=9
         for i in range(0, 3):
             for k in range(0, 3):
                 self.gen_block('accumulator',px+i*2+0.5, py+k*2+0.5)
+
+    def add_solar(self,i_start,k_limit,add_number,hx,hy):
+        i = i_start
+        while True:
+            i+=1
+            for k in range(0,k_limit):
+                if i % 3 == 0 and k % 3 == 0:
+                    self.gen_powerBlock0(i*6-hx, k*6-hy)
+                    add_number -=0
+                else:
+                    self.gen_solarBlock(i*6-hx, k*6-hy)
+                    add_number -=4
+            if add_number <=0:
+                break
+
+
+    def add_battery(self,i_start,k_limit,add_number,hx,hy):
+        i = i_start
+        while True:
+            i+=1
+            for k in range(0,k_limit):
+                if i % 3 == 0 and k % 3 == 0:
+                    self.gen_powerBlock1(i*6-hx, k*6-hy)
+                    add_number -=8
+                else:
+                    self.gen_batteryBlock(i*6-hx, k*6-hy)
+                    add_number -=9
+            if add_number <=0:
+                break
+
 
     def gen_SolarStation(self,flam):
         x, y = flam.shape
         hx = x*3
         hy = y*3
         for i in range(0, x):
+            self.p1["value"] = i/x*100
             for k in range(0, y):
                 if i % 3 == 0 and k % 3 == 0:
                     if(flam[i][k] == 0):
@@ -78,14 +116,16 @@ class gen_solar_station():
                     else:
                         self.gen_batteryBlock(i*6-hx, k*6-hy)
 
-
-
-
+        now_k = self.battery_number/self.solar_number
+        if now_k > self.k_balance:
+            add_number = int(self.battery_number/self.k_balance) - self.solar_number
+            self.add_solar(i,y,add_number,hx,hy)
+        else:
+            add_number = int(self.solar_number*self.k_balance) - self.battery_number
+            self.add_battery(i,y,add_number,hx,hy)
 
     def strat_trans(self):
             self.gen_SolarStation(self.flam)
-            # self.gen_solarBlock(0,0)
-            # self.gen_batteryBlock(6,0)
             so_bdy_dir['blueprint']['entities'] = self.item_list
             so_bdy_dir['blueprint']['tiles'] = self.ground_list
             self.pack_dir(so_bdy_dir)
@@ -108,7 +148,9 @@ class gen_mat():
     def __init__(self,point_list,p1,item_name):
         self.point_list = point_list
         self.p1 = p1
-        self.gen_type,self.item_list = item_name 
+        self.gen_type,self.item_list = item_name
+        self.k_balance = self.item_list[-1]
+
 
     def gen_block(self,id_,name,x,y):
         block_dir['position']['x'] = x
@@ -132,9 +174,9 @@ class gen_mat():
     def gen_block_dou(self):
             item_list = []
             count = 0
-            name1 = item_list[0]
-            name2 = item_list[1]
-            x, y = point_list.shape[0:2]
+            name1 = self.item_list[0]
+            name2 = self.item_list[1]
+            x, y = self.point_list.shape[0:2]
             for i in range(0,x):
                 self.p1["value"] = i/x*100
                 for k in range(0,y):
@@ -150,9 +192,9 @@ class gen_mat():
         if self.gen_type == 0:
             item_list=self.gen_block_sig()
         if self.gen_type == 1:
-            item_list=self.gen_block_dou(point_list,item_list[0],item_list[1])
+            item_list=self.gen_block_dou()
         if self.gen_type == 2:
-            gen_s = gen_solar_station(self.point_list.T)
+            gen_s = gen_solar_station(self.point_list.T,self.k_balance,self.p1)
             gen_s.strat_trans()
             return
         body_dir['blueprint']['tiles'] = item_list
