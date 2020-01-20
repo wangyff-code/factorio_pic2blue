@@ -252,7 +252,7 @@ def on_closing():
 
 origin_img = Image.fromarray(np.zeros((100,100),dtype=np.uint8))
 window = tk.Tk()
-window.title('图片转蓝图 V3.0')
+window.title('图片转蓝图 V4.1')
 tkImage = ImageTk.PhotoImage(image=origin_img)
 
 
