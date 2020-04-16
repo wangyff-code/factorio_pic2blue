@@ -10,8 +10,10 @@ import os
 import numba
 import json
 import webbrowser
-
+import ctypes
 from trans_fun import gen_mat
+import csv
+import copy
 
 item_name = 0,['stone-path']
 
@@ -23,6 +25,10 @@ item_dir = {
     "钢筋混凝土(标识)":'refined-hazard-concrete-left',
     "填海料":'landfill'
 }
+
+
+
+color_list=[[66, 158, 206, 1], [148, 93, 0, 1], [0, 89, 107, 1], [164, 129, 66, 1], [148, 101, 25, 1], [173, 129, 58, 1], [206, 214, 206, 1], [123, 125, 123, 1], [74, 81, 82, 1], [58, 61, 58, 1], [33, 142, 181, 1], [41, 49, 49, 1], [25, 93, 115, 1]]
 
 
 @numba.jit
@@ -52,11 +58,10 @@ class main_gui():
     def __init__(self):
         self.window = tk.Tk()
         self.window.title('图片转蓝图 V4.1')
-
+        self.color_list=[[66, 158, 206, 1], [148, 93, 0, 1], [0, 89, 107, 1], [164, 129, 66, 1], [148, 101, 25, 1], [173, 129, 58, 1], [206, 214, 206, 1], [123, 125, 123, 1], [74, 81, 82, 1], [58, 61, 58, 1], [33, 142, 181, 1], [41, 49, 49, 1], [25, 93, 115, 1]]
         self.read_apartment()
         self.init_menu()
         self.init_face()
-
         self.window.protocol("WM_DELETE_WINDOW", self.save_apartment)
         self.window.mainloop()
 
@@ -74,6 +79,15 @@ class main_gui():
 
 
     def read_apartment(self):
+        self.picvar = tk.IntVar()
+        self.alpha  = tk.IntVar()
+        self.beta   = tk.IntVar()
+
+        self.alpha.set(100) 
+        self.beta.set(0)
+
+
+        self.picvar.set(0)
         self.init_apart_list = []
         for i in range(0,6):
             a = tk.IntVar()
@@ -90,7 +104,10 @@ class main_gui():
                 self.init_apart_list[i].set(10)    
             pass
 
-    def save_apartment(self,window):
+        self.color_array = np.array(self.color_list,dtype=np.uint8)
+        self.dll = ctypes.cdll.LoadLibrary('img_CV.dll')
+
+    def save_apartment(self):
         var_list = []
         for i in self.init_apart_list:
             var_list.append(i.get())
@@ -103,22 +120,27 @@ class main_gui():
     def openfiles(self):
         s2fname = filedialog.askopenfilename(title='打开图片文件', filetypes=[('jpg', '*.jpg'), ('All Files', '*')])
         self.or_img=cv.imdecode(np.fromfile(s2fname,dtype=np.uint8),-1)
+        self.upall_img(0) 
 
 
-    def conf(self,win,picvar,number1,number2,number3,et):
-        global item_name
+    def conf(self,win,number1,number2,number3,et):
         try:
             k = float(et.get())
         except:
             k=1
         item_list = [item_dir[number1.get()],item_dir[number2.get()],k]
-        gen_type = picvar.get()
-        print(gen_type)
-        item_name = gen_type,item_list
+        item_name = self.picvar.get(),item_list
+        for widget in self.ctr_board.winfo_children():
+            widget.destroy()
+        if self.picvar.get() != 3:
+            self.init_board_type1()
+        else:
+            self.init_board_type2()
+        self.upall_img(0)
         win.destroy()
 
 
-    def show_tkimg(self.img):
+    def show_tkimg(self,img):
         x, y = img.shape[0:2]
         t = max(x,y)
         t = (self.init_apart_list[0].get()/t)
@@ -132,14 +154,14 @@ class main_gui():
         return tkImage
 
 
-    def up_img(self):
+    def up_img_1(self):
         x, y = self.or_img.shape[0:2]
         x*= self.init_apart_list[1].get()/100.0
         y*= self.init_apart_list[1].get()/100.0
         dim = (int(y), int(x))
         resize = cv.resize(self.or_img, dim, interpolation = cv.INTER_AREA)
         if self.init_apart_list[5].get() != 0:
-            img_GaussianBlur=cv.GaussianBlur(resize,(v5.get()*2+1,v5.get()*2+1),0)
+            img_GaussianBlur=cv.GaussianBlur(resize,(self.init_apart_list[5].get()*2+1,self.init_apart_list[5].get()*2+1),0)
         else:
             img_GaussianBlur = resize
         Can = cv.Canny(img_GaussianBlur, int(self.init_apart_list[3].get()), int(self.init_apart_list[4].get()))
@@ -154,8 +176,25 @@ class main_gui():
             out_img = add_can_img(Can,im_fixed)
         return out_img
 
-    def upall_img(self,*age):
-        out_img = self.up_img(self.or_img)
+    def up_img_2(self):
+        x, y = self.or_img.shape[0:2]
+        x*= self.init_apart_list[1].get()/100.0
+        y*= self.init_apart_list[1].get()/100.0
+        dim = (int(y), int(x))
+        resize = cv.resize(self.or_img, dim, interpolation = cv.INTER_AREA)
+        resize = cv.convertScaleAbs(resize,alpha=self.alpha.get()/100,beta=self.beta.get())
+        arg_array = np.array([dim[0]*dim[1],len(self.color_list)],dtype=np.long)
+        imgptr = resize.ctypes.data_as(ctypes.c_wchar_p)
+        colorptr = self.color_array.ctypes.data_as(ctypes.c_wchar_p)
+        arg_ptr = arg_array.ctypes.data_as(ctypes.c_wchar_p)
+        self.dll.img_CV(imgptr,colorptr,arg_ptr)
+        return resize
+
+    def upall_img(self,v):
+        if self.picvar.get() != 3:
+            out_img = self.up_img_1()
+        else:
+            out_img = self.up_img_2()
         tkImage=self.show_tkimg(out_img)
         self.label_img2.configure(image= tkImage)
         self.label_img2.image = tkImage
@@ -168,18 +207,18 @@ class main_gui():
         win.title("材质设置") 
         f1 = tk.Frame(win)
     #--------------------------------------
-        picvar = tk.IntVar()
-        pic = tk.Radiobutton(f1, text="单材质", variable=picvar, value=0)      
+        self.picvar = tk.IntVar()
+        pic = tk.Radiobutton(f1, text="单材质", variable=self.picvar, value=0)      
         pic.grid(row = 0,column = 0)
         pic.select()
 
-        pic1 = tk.Radiobutton(f1, text="双材质", variable=picvar, value=1)      
+        pic1 = tk.Radiobutton(f1, text="双材质", variable=self.picvar, value=1)      
         pic1.grid(row = 1,column = 0)
 
-        pic2 = tk.Radiobutton(f1, text="特殊材质", variable=picvar, value=2)      
+        pic2 = tk.Radiobutton(f1, text="特殊材质", variable=self.picvar, value=2)      
         pic2.grid(row = 2,column = 0)
 
-        pic3 = tk.Radiobutton(f1, text="多颜色多材质", variable=picvar, value=3)      
+        pic3 = tk.Radiobutton(f1, text="多颜色多材质", variable=self.picvar, value=3)      
         pic3.grid(row = 3,column = 0)
 
         l = tk.Label(f1, text="   材质1：", bg="pink", font=("Arial",10),width=15)
@@ -222,66 +261,27 @@ class main_gui():
         numberChosen2.current(0)
         numberChosen2.grid(row = 1,column = 4)
 
-        b1=tk.Button(f1, text='确定', width=4, height=2,command=lambda :self.conf(win,picvar,number1,number2,number3,et))
+        b1=tk.Button(f1, text='确定', width=4, height=2,command=lambda :self.conf(win,number1,number2,number3,et))
         b1.grid(row = 3,column = 3)
         f1.pack()
 
     def init_face(self):
-        self.or_img = np.zeros((100,100),dtype=np.uint8)
-        tkImage = ImageTk.PhotoImage(image=self.or_img)
-
+        self.or_img = np.zeros((300,300,3),dtype=np.uint8)
+        img = Image.fromarray(self.or_img)
+        tkImage = ImageTk.PhotoImage(image=img)
         fm1 = tk.Frame(self.window)
         self.label_img1 = tk.Label(fm1, image = tkImage)
         self.label_img1.pack(side = tk.LEFT)
         self.label_img2 = tk.Label(fm1, image = tkImage)
         self.label_img2.pack(side = tk.LEFT)
         v0=self.init_apart_list[0]
-        s1 = tk.Scale(fm1,from_=100,to=1000,length=100,variable=v0,command=upall_img)
+        s1 = tk.Scale(fm1,from_=100,to=1000,length=100,variable=v0,command=self.upall_img)
         s1.pack()
         fm1.pack(side =tk.TOP)
 
-        fm2 = tk.Frame(self.window)
-
-        f_1 = tk.Frame(fm2)
-        l = tk.Label(f_1, text="缩放比例", bg="pink", font=("Arial",10), width=7, height=1)
-        l.pack(side = tk.LEFT)
-        v1=tk.IntVar()
-        s1 = tk.Scale(f_1,from_=1,to=100,length=800,orient=tk.HORIZONTAL,variable=v1,command=up_img)
-        s1.pack(side = tk.LEFT)
-        f_1.pack()
-
-        f_2 = tk.Frame(fm2)
-        l = tk.Label(f_2, text="阈值下限", bg="pink", font=("Arial",10), width=7, height=1)
-        l.pack(side = tk.LEFT)
-        v2=tk.IntVar()
-        s1 = tk.Scale(f_2,from_=0,to=510,length=800,orient=tk.HORIZONTAL,variable=v2,command=up_img)
-        s1.pack(side = tk.LEFT)
-        f_2.pack()
-
-        f_3 = tk.Frame(fm2)
-        l = tk.Label(f_3, text="边缘上限", bg="pink", font=("Arial",10), width=7, height=1)
-        l.pack(side = tk.LEFT)
-        v3=tk.IntVar()
-        s1 = tk.Scale(f_3,from_=0,to=1000,length=800,orient=tk.HORIZONTAL,variable=v3,command=up_img)
-        s1.pack(side = tk.LEFT)
-        f_3.pack()
-
-        f_4 = tk.Frame(fm2)
-        l = tk.Label(f_4, text="边缘下限", bg="pink", font=("Arial",10), width=7, height=1)
-        l.pack(side = tk.LEFT)
-        v4=tk.IntVar()
-        s1 = tk.Scale(f_4,from_=0,to=1000,length=800,orient=tk.HORIZONTAL,variable=v4,command=up_img)
-        s1.pack(side = tk.LEFT)
-        f_4.pack()
-
-        f_5 = tk.Frame(fm2)
-        l = tk.Label(f_5, text="高斯模糊", bg="pink", font=("Arial",10), width=7, height=1)
-        l.pack(side = tk.LEFT)
-        v5=tk.IntVar()
-        s1 = tk.Scale(f_5,from_=0,to=40,length=800,orient=tk.HORIZONTAL,variable=v5,command=up_img)
-        s1.pack(side = tk.LEFT)
-        f_5.pack()
-        fm2.pack()
+        self.ctr_board = tk.Frame(self.window)
+        self.init_board_type1()
+        self.ctr_board.pack()
 
         fm3 = tk.Frame(self.window)
         com = tk.Button(fm3,text = '开始转换',  command=start_go) 
@@ -294,5 +294,75 @@ class main_gui():
 
         fm3.pack(side =tk.BOTTOM)
         com = tk.Button(self.window,text = '支持一下，点击进入github',command=github) 
-        com.pack(side = tk.BOTTOM)        
+        com.pack(side = tk.BOTTOM)    
+        self.upall_img(0)   
+
+
+    def init_board_type1(self):
+        f_1 = tk.Frame(self.ctr_board)
+        l = tk.Label(f_1, text="缩放比例", bg="pink", font=("Arial",10), width=7, height=1)
+        l.pack(side = tk.LEFT)
+        v1=self.init_apart_list[1]
+        s1 = tk.Scale(f_1,from_=1,to=100,length=800,orient=tk.HORIZONTAL,variable=v1,command=self.upall_img)
+        s1.pack(side = tk.LEFT)
+        f_1.pack()
+
+        f_2 = tk.Frame(self.ctr_board)
+        l = tk.Label(f_2, text="阈值下限", bg="pink", font=("Arial",10), width=7, height=1)
+        l.pack(side = tk.LEFT)
+        v2=self.init_apart_list[2]
+        s1 = tk.Scale(f_2,from_=0,to=510,length=800,orient=tk.HORIZONTAL,variable=v2,command=self.upall_img)
+        s1.pack(side = tk.LEFT)
+        f_2.pack()
+
+        f_3 = tk.Frame(self.ctr_board)
+        l = tk.Label(f_3, text="边缘上限", bg="pink", font=("Arial",10), width=7, height=1)
+        l.pack(side = tk.LEFT)
+        v3=self.init_apart_list[3]
+        s1 = tk.Scale(f_3,from_=0,to=1000,length=800,orient=tk.HORIZONTAL,variable=v3,command=self.upall_img)
+        s1.pack(side = tk.LEFT)
+        f_3.pack()
+
+        f_4 = tk.Frame(self.ctr_board)
+        l = tk.Label(f_4, text="边缘下限", bg="pink", font=("Arial",10), width=7, height=1)
+        l.pack(side = tk.LEFT)
+        v4=self.init_apart_list[4]
+        s1 = tk.Scale(f_4,from_=0,to=1000,length=800,orient=tk.HORIZONTAL,variable=v4,command=self.upall_img)
+        s1.pack(side = tk.LEFT)
+        f_4.pack()
+
+        f_5 = tk.Frame(self.ctr_board)
+        l = tk.Label(f_5, text="高斯模糊", bg="pink", font=("Arial",10), width=7, height=1)
+        l.pack(side = tk.LEFT)
+        v5=self.init_apart_list[5]
+        s1 = tk.Scale(f_5,from_=0,to=40,length=800,orient=tk.HORIZONTAL,variable=v5,command=self.upall_img)
+        s1.pack(side = tk.LEFT)
+        f_5.pack()
+
+    def init_board_type2(self):
+        f_1 = tk.Frame(self.ctr_board)
+        l = tk.Label(f_1, text="缩放比例", bg="pink", font=("Arial",10), width=7, height=1)
+        l.pack(side = tk.LEFT)
+        v1=self.init_apart_list[1]
+        s1 = tk.Scale(f_1,from_=1,to=100,length=800,orient=tk.HORIZONTAL,variable=v1,command=self.upall_img)
+        s1.pack(side = tk.LEFT)
+        f_1.pack()
+        self.alpha
+
+        f_2 = tk.Frame(self.ctr_board)
+        l = tk.Label(f_2, text="K", bg="pink", font=("Arial",10), width=7, height=1)
+        l.pack(side = tk.LEFT)
+        v1=self.init_apart_list[1]
+        s1 = tk.Scale(f_2,from_=0,to=200,length=800,orient=tk.HORIZONTAL,variable=self.alpha,command=self.upall_img)
+        s1.pack(side = tk.LEFT)
+        f_2.pack()
+
+        f_2 = tk.Frame(self.ctr_board)
+        l = tk.Label(f_2, text="B", bg="pink", font=("Arial",10), width=7, height=1)
+        l.pack(side = tk.LEFT)
+        v1=self.init_apart_list[1]
+        s1 = tk.Scale(f_2,from_=0,to=200,length=800,orient=tk.HORIZONTAL,variable=self.beta,command=self.upall_img)
+        s1.pack(side = tk.LEFT)
+        f_2.pack()
+        
 gui = main_gui()
