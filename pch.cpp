@@ -35,10 +35,11 @@ long dis_tens_color(color_type* c1, color_type* c2,unsigned char v)
 	return temp;
 }
 
-void change_color(color_type* c1, list_type* listPtr, int list_len)
+int change_color(color_type* c1, list_type* listPtr, int list_len)
 {
 	long temp = 0;
 	long temp_min = 0;
+	unsigned char item_id = 0;
 	color_type* list_temp = (color_type*)(listPtr);
 	int i;
 	for (i = 0; i < list_len; i++)
@@ -48,6 +49,7 @@ void change_color(color_type* c1, list_type* listPtr, int list_len)
 			temp = dis_tens_color(c1, (color_type*)(listPtr + i), (listPtr + i)->v);
 			temp_min = temp;
 			list_temp = (color_type*)(listPtr + i);
+			item_id = i;
 		}
 		else
 		{
@@ -56,24 +58,28 @@ void change_color(color_type* c1, list_type* listPtr, int list_len)
 			{
 				list_temp = (color_type*)(listPtr + i);
 				temp_min = temp;
+				item_id = i;
 			}
 		}
 	}
 	c1->b = list_temp->b;
 	c1->g = list_temp->g;
 	c1->r = list_temp->r;
+	return item_id;
 }
 
 
 
 
-int img_CV(unsigned char* imgPtr,unsigned char * listPtr,unsigned char * arg_ptr)
+int img_CV(unsigned char* imgPtr,unsigned char * listPtr,unsigned char * pix_ptr,unsigned char * arg_ptr)
 {
 	arg_type * arg =(arg_type*)arg_ptr;
 	long pix_number;
+	unsigned char item_id = 0;
 	for (pix_number = 0; pix_number < arg->pix_len; pix_number++)
 	{
-		change_color((color_type*)(imgPtr)+pix_number,(list_type*)listPtr, arg->list_len);
+		item_id=change_color((color_type*)(imgPtr)+pix_number,(list_type*)listPtr, arg->list_len);
+		*(pix_ptr + pix_number) = item_id;
 	}
 	return 0;
 }
