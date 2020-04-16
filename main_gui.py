@@ -58,6 +58,7 @@ class main_gui():
     def __init__(self):
         self.window = tk.Tk()
         self.window.title('图片转蓝图 V4.1')
+        self.gen_matClass = gen_mat()
         self.color_list=[[66, 158, 206, 1], [148, 93, 0, 1], [0, 89, 107, 1], [164, 129, 66, 1], [148, 101, 25, 1], [173, 129, 58, 1], [206, 214, 206, 1], [123, 125, 123, 1], [74, 81, 82, 1], [58, 61, 58, 1], [33, 142, 181, 1], [41, 49, 49, 1], [25, 93, 115, 1]]
         self.read_apartment()
         self.init_menu()
@@ -128,8 +129,9 @@ class main_gui():
             k = float(et.get())
         except:
             k=1
-        item_list = [item_dir[number1.get()],item_dir[number2.get()],k]
-        item_name = self.picvar.get(),item_list
+        gen_type = self.picvar.get()
+        item_list = [item_dir[number1.get()],item_dir[number2.get()]]
+        self.gen_matClass.set_gen(gen_type,item_list,k,self.p1)
         for widget in self.ctr_board.winfo_children():
             widget.destroy()
         if self.picvar.get() != 3:
@@ -174,6 +176,7 @@ class main_gui():
         else:
             ret,im_fixed=cv.threshold(gray,temp,255,cv.THRESH_BINARY)
             out_img = add_can_img(Can,im_fixed)
+        self.gen_matClass.set_pix(out_img)
         return out_img
 
     def up_img_2(self):
@@ -181,26 +184,40 @@ class main_gui():
         x*= self.init_apart_list[1].get()/100.0
         y*= self.init_apart_list[1].get()/100.0
         dim = (int(y), int(x))
+        pix_array = np.zeros((int(x), int(y)),dtype=np.uint8)
         resize = cv.resize(self.or_img, dim, interpolation = cv.INTER_AREA)
         resize = cv.convertScaleAbs(resize,alpha=self.alpha.get()/100,beta=self.beta.get())
         arg_array = np.array([dim[0]*dim[1],len(self.color_list)],dtype=np.long)
         imgptr = resize.ctypes.data_as(ctypes.c_wchar_p)
         colorptr = self.color_array.ctypes.data_as(ctypes.c_wchar_p)
         arg_ptr = arg_array.ctypes.data_as(ctypes.c_wchar_p)
-        self.dll.img_CV(imgptr,colorptr,arg_ptr)
+        pix_ptr = pix_array.ctypes.data_as(ctypes.c_wchar_p)
+        self.dll.img_CV(imgptr,colorptr,pix_ptr,arg_ptr)
+        self.gen_matClass.set_pix(pix_array)
         return resize
 
     def upall_img(self,v):
         if self.picvar.get() != 3:
-            out_img = self.up_img_1()
+            self.out_img = self.up_img_1()
         else:
-            out_img = self.up_img_2()
-        tkImage=self.show_tkimg(out_img)
+            self.out_img = self.up_img_2()
+        tkImage=self.show_tkimg(self.out_img)
         self.label_img2.configure(image= tkImage)
         self.label_img2.image = tkImage
         tkImage=self.show_tkimg(self.or_img)
         self.label_img1.configure(image= tkImage)
         self.label_img1.image = tkImage
+
+
+
+    def start_go(self):
+        t = threading.Thread(target=self.tras)
+        t.setDaemon(True)
+        t.start()
+        tkinter.messagebox.showinfo('提示','正在转换，结果输出output.txt')
+
+    def tras(self):
+        self.gen_matClass.strat_trans()
 
     def set_item(self):
         win = tk.Toplevel()
@@ -284,13 +301,13 @@ class main_gui():
         self.ctr_board.pack()
 
         fm3 = tk.Frame(self.window)
-        com = tk.Button(fm3,text = '开始转换',  command=start_go) 
+        com = tk.Button(fm3,text = '开始转换',  command=self.start_go) 
         com.pack(side = tk.LEFT)
 
-        p1 = ttk.Progressbar(fm3, length=1000, mode="determinate", orient=tk.HORIZONTAL)
-        p1.pack(side=tk.BOTTOM)
-        p1["maximum"] = 100
-        p1["value"] = 0
+        self.p1 = ttk.Progressbar(fm3, length=1000, mode="determinate", orient=tk.HORIZONTAL)
+        self.p1.pack(side=tk.BOTTOM)
+        self.p1["maximum"] = 100
+        self.p1["value"] = 0
 
         fm3.pack(side =tk.BOTTOM)
         com = tk.Button(self.window,text = '支持一下，点击进入github',command=github) 

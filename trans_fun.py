@@ -145,12 +145,17 @@ class gen_solar_station():
 
 
 class gen_mat():
-    def __init__(self,point_list,p1,item_name):
-        self.point_list = point_list
-        self.p1 = p1
-        self.gen_type,self.item_list = item_name
-        self.k_balance = self.item_list[-1]
+    def __init__(self):
+        pass
 
+    def set_gen(self,gen_type,item_list,k,p1):
+        self.p1 = p1
+        self.gen_type = gen_type
+        self.item_list = item_list
+        self.k_balance = k
+    
+    def set_pix(self,pix_array):
+        self.pix_array = pix_array
 
     def gen_block(self,id_,name,x,y):
         block_dir['position']['x'] = x
@@ -162,11 +167,11 @@ class gen_mat():
         item_list = []
         count = 0
         name = self.item_list[0]
-        x, y = self.point_list.shape[0:2]
+        x, y = self.pix_array.shape[0:2]
         for i in range(0,x):
             self.p1["value"] = i/x*100
             for k in range(0,y):
-                if self.point_list[i][k] == 0:
+                if self.pix_array[i][k] == 0:
                     item_list.append(copy.deepcopy(self.gen_block(count,name,k - y//2,i - x//2)))
                     count +=1
         return item_list
@@ -176,11 +181,11 @@ class gen_mat():
             count = 0
             name1 = self.item_list[0]
             name2 = self.item_list[1]
-            x, y = self.point_list.shape[0:2]
+            x, y = self.pix_array.shape[0:2]
             for i in range(0,x):
                 self.p1["value"] = i/x*100
                 for k in range(0,y):
-                    if self.point_list[i][k] == 0:
+                    if self.pix_array[i][k] == 0:
                         item_list.append(copy.deepcopy(self.gen_block(count,name1,k - y//2,i - x//2)))
                         count +=1
                     else:
@@ -188,15 +193,20 @@ class gen_mat():
                         count +=1
             return item_list
 
+    def gen_block_color(self):
+        pass
+
     def strat_trans(self):
         if self.gen_type == 0:
             item_list=self.gen_block_sig()
         if self.gen_type == 1:
             item_list=self.gen_block_dou()
         if self.gen_type == 2:
-            gen_s = gen_solar_station(self.point_list.T,self.k_balance,self.p1)
+            gen_s = gen_solar_station(self.pix_array.T,self.k_balance,self.p1)
             gen_s.strat_trans()
             return
+        if self.gen_type == 3:
+            item_list=self.gen_block_color()
         body_dir['blueprint']['tiles'] = item_list
         self.pack_dir(body_dir)
 
