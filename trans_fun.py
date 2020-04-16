@@ -6,6 +6,10 @@ import os
 from fac_dir import *
 import numpy as np
 
+item_id_dir={0:'stone-path',1:'stone-path',2:'stone-path',3:'stone-path',4:'stone-path',5:'stone-path',6:'stone-path',7:'stone-path',8:'stone-path',9:'stone-path',10:'stone-path',11:'stone-path',12:'stone-path',}
+
+
+
 class gen_solar_station():
     def __init__(self,flam,k_balance,p1):
         self.p1 = p1
@@ -194,7 +198,16 @@ class gen_mat():
             return item_list
 
     def gen_block_color(self):
-        pass
+        item_list = []
+        count = 0
+        x, y = self.pix_array.shape[0:2]
+        for i in range(0,x):
+            self.p1["value"] = i/x*100
+            for k in range(0,y):
+                name = item_id_dir[self.pix_array[i][k]]
+                item_list.append(copy.deepcopy(self.gen_block(count,name,k - y//2,i - x//2)))
+                count +=1
+        return item_list
 
     def strat_trans(self):
         if self.gen_type == 0:

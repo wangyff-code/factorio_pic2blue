@@ -278,7 +278,7 @@ class main_gui():
         numberChosen2.current(0)
         numberChosen2.grid(row = 1,column = 4)
 
-        b1=tk.Button(f1, text='确定', width=4, height=2,command=lambda :self.conf(win,number1,number2,number3,et))
+        b1=tk.Button(f1, text='确定', width=12, height=2,command=lambda :self.conf(win,number1,number2,number3,et))
         b1.grid(row = 3,column = 3)
         f1.pack()
 
@@ -312,7 +312,10 @@ class main_gui():
         fm3.pack(side =tk.BOTTOM)
         com = tk.Button(self.window,text = '支持一下，点击进入github',command=github) 
         com.pack(side = tk.BOTTOM)    
-        self.upall_img(0)   
+        self.upall_img(0)
+        gen_type = self.picvar.get()
+        item_list = [item_dir["石砖"],item_dir["石砖"]]
+        self.gen_matClass.set_gen(gen_type,item_list,1,self.p1)   
 
 
     def init_board_type1(self):
