@@ -1,7 +1,6 @@
 ﻿// pch.cpp: 与预编译标头对应的源文件
 
 #include "pch.h"
-#include "immintrin.h"
 // 当使用预编译的头时，需要使用此源文件，编译才能成功。
 
 typedef struct {
@@ -60,7 +59,7 @@ int change_color(color_type* c1, color_type* listPtr, int list_len)
 }
 
 
-int img_CV(unsigned char* imgPtr,unsigned char * listPtr,unsigned char * pix_ptr,unsigned char * arg_ptr)
+int img_closePick(unsigned char* imgPtr,unsigned char * listPtr,unsigned char * pix_ptr,unsigned char * arg_ptr)
 {
 	arg_type * arg =(arg_type*)arg_ptr;
 	long pix_number;
@@ -74,3 +73,17 @@ int img_CV(unsigned char* imgPtr,unsigned char * listPtr,unsigned char * pix_ptr
 }
 
 
+int img_not(unsigned char* imgPtr, unsigned char* mask,unsigned char* arg_ptr)
+{
+	long img_len =*((long*)arg_ptr);
+	long i;
+	for (i = 0; i < img_len; i++)
+	{
+		if (*(mask + i) == 255)
+			if (*(imgPtr + i) == 255)
+				*(imgPtr + i) = 0;
+			else
+				*(imgPtr + i) = 255;
+	}
+	return 0;
+}
