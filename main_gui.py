@@ -12,8 +12,8 @@ from tkinter import filedialog, ttk
 import cv2 as cv
 import numpy as np
 from PIL import Image, ImageTk
-
 from trans_fun import gen_mat
+from fac_dir import color_list
 
 item_name = 0, ['stone-path']
 
@@ -25,10 +25,8 @@ item_dir = {
     "钢筋混凝土(标识)": 'refined-hazard-concrete-left',
     "填海料": 'landfill'
 }
-color_list = [[66, 158, 206], [148, 93, 0], [0, 89, 107], [164, 129, 66],
-              [148, 101, 25], [173, 129, 58], [206, 214, 206], [123, 125, 123],
-              [74, 81, 82], [58, 61, 58], [33, 142, 181], [41, 49, 49],
-              [25, 93, 115]]
+
+
 
 
 def github():
@@ -39,7 +37,7 @@ def github():
 class main_gui():
     def __init__(self):
         self.window = tk.Tk()
-        self.window.title('图片转蓝图 V4.1')
+        self.window.title('图片转蓝图 V5.0')
         self.gen_matClass = gen_mat()
         self.read_apartment()
         self.init_menu()
@@ -480,7 +478,7 @@ class main_gui():
 
         f_2 = tk.Frame(self.ctr_board)
         l = tk.Label(f_2,
-                     text="K",
+                     text="亮度增益",
                      bg="pink",
                      font=("Arial", 10),
                      width=7,
@@ -499,7 +497,7 @@ class main_gui():
 
         f_2 = tk.Frame(self.ctr_board)
         l = tk.Label(f_2,
-                     text="B",
+                     text="亮度基准",
                      bg="pink",
                      font=("Arial", 10),
                      width=7,

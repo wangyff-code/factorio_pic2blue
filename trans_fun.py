@@ -199,15 +199,24 @@ class gen_mat():
 
     def gen_block_color(self):
         item_list = []
+        entity_list = []
         count = 0
         x, y = self.pix_array.shape[0:2]
         for i in range(0,x):
             self.p1["value"] = i/x*100
             for k in range(0,y):
-                name = item_id_dir[self.pix_array[i][k]]
-                item_list.append(copy.deepcopy(self.gen_block(count,name,k - y//2,i - x//2)))
-                count +=1
-        return item_list
+                entity = color_dir[self.pix_array[i][k]]
+                if 'entity_number' in entity:
+                    entity['position']['x'] = k - y//2
+                    entity['position']['y'] = i - x//2
+                    entity['entity_number'] =count
+                    entity_list.append(copy.deepcopy(entity))
+                    count +=1
+                else:
+                    entity['position']['x'] = k - y//2
+                    entity['position']['y'] = i - x//2
+                    item_list.append(copy.deepcopy(entity))
+        return item_list,entity_list
 
     def strat_trans(self):
         if self.gen_type == 0:
@@ -219,7 +228,8 @@ class gen_mat():
             gen_s.strat_trans()
             return
         if self.gen_type == 3:
-            item_list=self.gen_block_color()
+            item_list,entity_list=self.gen_block_color()
+            body_dir['blueprint']['entities'] = entity_list
         body_dir['blueprint']['tiles'] = item_list
         self.pack_dir(body_dir)
 

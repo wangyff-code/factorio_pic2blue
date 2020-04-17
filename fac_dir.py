@@ -1,5 +1,3 @@
-
-
 body_dir = {
     "blueprint": {
         "icons": [
@@ -43,8 +41,6 @@ body_dir = {
     }
 }
 
-
-
 so_bdy_dir={
     "blueprint": {
         "icons": [
@@ -77,9 +73,6 @@ so_bdy_dir={
     }
 }
 
-
-
-
 so_dir = {
                 "entity_number": 2,
                 "name": "solar-panel",
@@ -89,21 +82,6 @@ so_dir = {
                 }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 block_dir = {
                 "position": {
                     "x": -1,
@@ -111,3 +89,116 @@ block_dir = {
                 },
                 "name": "stone-path"
             }
+
+color_list = [[66, 158, 206], [148, 93, 0], [0, 89, 107], [164, 129, 66],
+              [148, 101, 25], [173, 129, 58], [206, 214, 206], [123, 125, 123],
+              [74, 81, 82], [58, 61, 58], [33, 142, 181], [41, 49, 49],
+              [25, 93, 115]]
+
+
+color_dir ={0:
+                {
+                        "entity_number": 1,
+                        "name": "transport-belt",
+                        "position": {
+                            "x": 0,
+                            "y": 0
+                        },
+                        "direction": 2
+                },
+            1:{
+                "entity_number": 1,
+                "name": "iron-chest",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                }
+              },
+            2:{
+                "entity_number": 1,
+                "name": "underground-belt",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "direction": 2,
+                "type": "input"
+            },
+            3:{
+                "entity_number": 1,
+                "name": "pipe",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                }
+            },
+            4:{
+                "entity_number": 1,
+                "name": "pipe-to-ground",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                }
+            },
+            5:{
+                "entity_number": 1,
+                "name": "heat-pipe",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                }
+            },
+            6:{
+                "entity_number": 1,
+                "name": "stone-wall",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                }
+            },
+            7:{
+                "entity_number": 1,
+                "name": "gate",
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "direction": 2
+            },
+            8:{
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "name": "stone-path"
+            },
+            9:{
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "name": "concrete"
+            },
+            10:{
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "name": "hazard-concrete-left"
+            },
+            11:{
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "name": "refined-concrete"
+            },
+            12:
+            {
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "name": "refined-hazard-concrete-left"
+            }
+}
