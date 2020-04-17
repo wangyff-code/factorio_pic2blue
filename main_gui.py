@@ -31,14 +31,6 @@ color_list = [[66, 158, 206], [148, 93, 0], [0, 89, 107], [164, 129, 66],
               [25, 93, 115]]
 
 
-def start_go():
-    t = threading.Thread(target=tras)
-    t.setDaemon(True)
-    t.start()
-    tkinter.messagebox.showinfo(
-        '提示', '正在转换，请稍后\n转换完成后会再TXT中打开结果\n也可以自己打开output.txt')
-
-
 def github():
     webbrowser.open("https://github.com/wangyff-code/factorio_pic2blue", new=0)
     pass
@@ -92,7 +84,7 @@ class main_gui():
                 self.init_apart_list[i].set(10)
             pass
 
-        self.color_array = np.array(self.color_list, dtype=np.uint8)
+        self.color_array = np.array(color_list, dtype=np.uint8)
         self.dll = ctypes.cdll.LoadLibrary('my_cv.dll')
 
     def save_apartment(self):
@@ -186,7 +178,7 @@ class main_gui():
                                     alpha=self.alpha.get() / 100,
                                     beta=self.beta.get())
         arg_array = np.array(
-            [dim[0] * dim[1], len(self.color_list)], dtype=np.long)
+            [dim[0] * dim[1], len(color_list)], dtype=np.long)
         imgptr = resize.ctypes.data_as(ctypes.c_wchar_p)
         colorptr = self.color_array.ctypes.data_as(ctypes.c_wchar_p)
         arg_ptr = arg_array.ctypes.data_as(ctypes.c_wchar_p)
@@ -209,6 +201,8 @@ class main_gui():
 
 
     def start_go(self):
+        for widget in self.ctr_board.winfo_children():
+            widget.destroy()
         t = threading.Thread(target=self.tras)
         t.setDaemon(True)
         t.start()
@@ -216,6 +210,10 @@ class main_gui():
 
     def tras(self):
         self.gen_matClass.strat_trans()
+        if self.picvar.get() != 3:
+            self.init_board_type1()
+        else:
+            self.init_board_type2()
 
     def set_item(self):
         win = tk.Toplevel()
