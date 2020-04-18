@@ -43,7 +43,18 @@ class main_gui():
         self.init_menu()
         self.init_face()
         self.window.protocol("WM_DELETE_WINDOW", self.save_apartment)
+        self.window.bind('<Configure>',self.resize)
+        self.resize(0)
         self.window.mainloop()
+
+    def resize(self,event):
+        self.window.update()
+        min_size = min(self.window.winfo_width(),self.window.winfo_height())
+        min_size = int(min_size/3.0*2)
+        v0 = self.init_apart_list[0]
+        v0.set(min_size)
+        self.upall_img(0)
+
 
     def init_menu(self):
         menubar = tk.Menu(self.window)
@@ -325,15 +336,7 @@ class main_gui():
         self.label_img1.pack(side=tk.LEFT)
         self.label_img2 = tk.Label(fm1, image=tkImage)
         self.label_img2.pack(side=tk.LEFT)
-        v0 = self.init_apart_list[0]
-        s1 = tk.Scale(fm1,
-                      from_=100,
-                      to=1000,
-                      length=100,
-                      variable=v0,
-                      command=self.upall_img)
-        s1.pack()
-        fm1.pack(side=tk.TOP)
+        fm1.pack()
 
         self.ctr_board = tk.Frame(self.window)
         self.init_board_type1()
