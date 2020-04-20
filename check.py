@@ -1,10 +1,5 @@
 import tkinter as tk
- 
-
-color_list = [[66, 158, 206], [148, 93, 0], [0, 89, 107], [164, 129, 66],
-              [148, 101, 25], [173, 129, 58], [206, 214, 206], [123, 125, 123],
-              [74, 81, 82], [58, 61, 58], [33, 142, 181], [41, 49, 49],
-              [25, 93, 115]]
+from fac_dir import item_color_dir
 
 
 
@@ -19,34 +14,48 @@ def get_colorCode(color):
 
 top = tk.Tk()
 check_var_list = []
-line1 = len(color_list)//2
+row_counter = 0
 f_SelectBoard = tk.Frame(top,borderwidth=2,relief="groove")
-one = tk.Label(f_SelectBoard,text ='helloworld')
-one.pack(side = tk.TOP)
-f_selet1 = tk.Frame(f_SelectBoard)
-for i in range(0,line1):
-    f1 = tk.Frame(f_selet1)
-    CheckVar1 = tk.IntVar()
-    check_var_list.append(CheckVar1)
-    C1 = tk.Checkbutton(f1, variable = CheckVar1,
-                    onvalue = 1, offvalue = 0)
-    one = tk.Label(f1,text ='helloworld',bg=get_colorCode(color_list[i]))
-    C1.pack(side=tk.LEFT)
-    one.pack(side=tk.LEFT) 
-    f1.pack(side=tk.TOP)
-f_selet1.pack(side=tk.LEFT)
+one = tk.Label(f_SelectBoard,text ='材质选择面板')
+one.grid(row=row_counter,column=0)
 
-f_selet2 = tk.Frame(f_SelectBoard)
-for i in range(line1,len(color_list)):
-    f1 = tk.Frame(f_selet2)
-    CheckVar1 = tk.IntVar()
-    check_var_list.append(CheckVar1)
-    C1 = tk.Checkbutton(f1, variable = CheckVar1,
-                    onvalue = 1, offvalue = 0)
-    one = tk.Label(f1,text ='helloworld',bg=get_colorCode(color_list[i]))
-    C1.pack(side=tk.LEFT)
-    one.pack(side=tk.LEFT) 
-    f1.pack(side=tk.TOP)
-f_selet2.pack(side=tk.LEFT)
+row_counter +=1
+one = tk.Label(f_SelectBoard,text ='实体材质')
+one.grid(row=row_counter,column=0)
+
+
+row_counter +=1
+
+for i in item_color_dir.values():
+    if i['isEntity'] == True:
+        CheckVar1 = tk.IntVar()
+        check_var_list.append(CheckVar1)
+        C1 = tk.Checkbutton(f_SelectBoard, variable = CheckVar1,
+                        onvalue = 1, offvalue = 0,bg=get_colorCode(i["color"]),width=4)
+        one = tk.Label(f_SelectBoard,text =i["name"],width=15,anchor=tk.NW)
+        one.grid(row=row_counter,column=1)
+        C1.grid(row=row_counter,column=0)
+        row_counter +=1
+
+
+row_counter = 1
+
+
+one = tk.Label(f_SelectBoard,text ='地板材质')
+one.grid(row=row_counter,column=2)
+
+row_counter +=1
+
+for i in item_color_dir.values():
+    if i['isEntity'] == False:
+        CheckVar1 = tk.IntVar()
+        check_var_list.append(CheckVar1)
+        C1 = tk.Checkbutton(f_SelectBoard, variable = CheckVar1,
+                        onvalue = 1, offvalue = 0,bg=get_colorCode(i["color"]),width=4)
+        one = tk.Label(f_SelectBoard,text =i["name"],width=15,anchor=tk.NW)
+        one.grid(row=row_counter,column=3)
+        C1.grid(row=row_counter,column=2)
+        row_counter +=1
+
 f_SelectBoard.pack(side=tk.LEFT)
 top.mainloop()

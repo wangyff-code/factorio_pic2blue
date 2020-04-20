@@ -38,6 +38,7 @@ class main_gui():
     def __init__(self):
         self.window = tk.Tk()
         self.window.title('图片转蓝图 V5.0')
+        self.window.geometry("1024x768")
         self.gen_matClass = gen_mat()
         self.read_apartment()
         self.init_menu()
@@ -49,8 +50,7 @@ class main_gui():
 
     def resize(self,event):
         self.window.update()
-        min_size = min(self.window.winfo_width(),self.window.winfo_height())
-        min_size = int(min_size/3.0*2)
+        min_size = min(self.window.winfo_width(),int(self.window.winfo_height()/4.0*3))
         v0 = self.init_apart_list[0]
         v0.set(min_size)
         self.upall_img(0)
@@ -328,7 +328,7 @@ class main_gui():
         f1.pack()
 
     def init_face(self):
-        self.or_img = np.zeros((300, 300, 3), dtype=np.uint8)
+        self.or_img = np.zeros((100, 100, 3), dtype=np.uint8)
         img = Image.fromarray(self.or_img)
         tkImage = ImageTk.PhotoImage(image=img)
         fm1 = tk.Frame(self.window)

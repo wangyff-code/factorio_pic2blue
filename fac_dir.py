@@ -96,6 +96,26 @@ color_list = [[66, 158, 206], [148, 93, 0], [0, 89, 107], [164, 129, 66],
               [25, 93, 115]]
 
 
+item_color_dir ={   0:{'name':'基础传送带', 'color':[66,158,206],'isEntity':True},
+                    1:{'name':'铁箱',       'color':[148,93,0],'isEntity':True},
+                    2:{'name':'地下传送带', 'color':[0,89,107],'isEntity':True},
+                    3:{'name':'管道',       'color':[164,129,66],'isEntity':True},
+                    4:{'name':'地下管道',    'color':[148,101,25],'isEntity':True},
+                    5:{'name':'热管',    'color':[173,129,58],'isEntity':True},
+                    6:{'name':'石墙',    'color':[206,214,206],'isEntity':True},
+                    7:{'name':'闸门',    'color':[123,125,123],'isEntity':True},
+                    8:{'name':'石砖',    'color':[74,81,82],'isEntity':False},
+                    9:{'name':'混凝土',   'color':[58,61,58],'isEntity':False},
+                    10:{'name':'钢筋混凝土',   'color':[33,142,181],'isEntity':False},
+                    11:{'name':'标记混凝土',   'color':[41,49,49],'isEntity':False},
+                    12:{'name':'钢筋标记混凝土',   'color':[25,93,115],'isEntity':False}
+}
+
+
+
+
+
+
 color_dir ={0:
                 {
                         "entity_number": 1,
