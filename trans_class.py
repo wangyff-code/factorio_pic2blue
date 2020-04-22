@@ -6,8 +6,6 @@ import os
 from fac_dir import *
 import numpy as np
 
-item_id_dir={0:'stone-path',1:'stone-path',2:'stone-path',3:'stone-path',4:'stone-path',5:'stone-path',6:'stone-path',7:'stone-path',8:'stone-path',9:'stone-path',10:'stone-path',11:'stone-path',12:'stone-path',}
-
 
 
 class gen_solar_station():
