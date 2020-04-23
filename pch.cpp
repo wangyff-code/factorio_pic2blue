@@ -110,6 +110,7 @@ unsigned char repic_color(color_type* c1, color_type* listPtr)
 }
 
 
+
 int img_2pick(unsigned char* imgPtr, unsigned char* listPtr, unsigned char* pix_ptr, unsigned char* arg_ptr)
 {
 	arg_type* arg = (arg_type*)arg_ptr;

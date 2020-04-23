@@ -243,3 +243,57 @@ class gen_mat():
         f.write(out)
         f.close()
         os.startfile(r'output.txt')
+
+def pack_dir(dir_data):
+        data = json.dumps(dir_data)
+        data.replace(' ','')
+        data.replace('\n','')
+        st = data.encode('utf-8')
+        st = zlib.compress(st)
+        out = base64.b64encode(st).decode()
+        out = '0' + out
+        f = open('output.txt','w')
+        f.write(out)
+        f.close()
+        os.startfile(r'output.txt')
+
+
+def tras_blue(pix_list,pix_array,my_pross):
+    item_list = []
+    entity_list = []
+    count = 0
+    x, y = pix_array.shape[0:2]
+    if len(pix_list) == 1:
+        for i in range(0,x):
+            my_pross.update(i/x*100)
+            for k in range(0,y):
+                if pix_array[i][k] == 1:
+                    entity = color_dir[pix_list[0]]
+                    if 'entity_number' in entity:
+                        entity['position']['x'] = k - y//2
+                        entity['position']['y'] = i - x//2
+                        entity['entity_number'] =count
+                        entity_list.append(copy.deepcopy(entity))
+                        count +=1
+                    else:
+                        entity['position']['x'] = k - y//2
+                        entity['position']['y'] = i - x//2
+                        item_list.append(copy.deepcopy(entity))
+    else:
+        for i in range(0,x):
+            my_pross.update(i/x*100)
+            for k in range(0,y):
+                    entity = color_dir[pix_list[pix_array[i][k]]]
+                    if 'entity_number' in entity:
+                        entity['position']['x'] = k - y//2
+                        entity['position']['y'] = i - x//2
+                        entity['entity_number'] =count
+                        entity_list.append(copy.deepcopy(entity))
+                        count +=1
+                    else:
+                        entity['position']['x'] = k - y//2
+                        entity['position']['y'] = i - x//2
+                        item_list.append(copy.deepcopy(entity))
+    body_dir['blueprint']['entities'] = entity_list
+    body_dir['blueprint']['tiles'] = item_list
+    pack_dir(body_dir)

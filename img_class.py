@@ -47,7 +47,7 @@ class img_transClass():
         
         self.dll.img_2pick(img_ptr, color_ptr, pix_ptr, arg_ptr)
         out_img = img
-        return out_img
+        return out_img,pix_array
 
     def up_img_2(self,or_img,check_int_dir,scale_dir2,color_list):
         x, y = or_img.shape[0:2]
@@ -67,7 +67,7 @@ class img_transClass():
         arg_ptr = arg_array.ctypes.data_as(ctypes.c_wchar_p)
         pix_ptr = pix_array.ctypes.data_as(ctypes.c_wchar_p)
         self.dll.img_closePick(imgptr, colorptr, pix_ptr, arg_ptr)
-        return resize
+        return resize,pix_array
 
 
 def show_tkimg(img,size,isBGR):

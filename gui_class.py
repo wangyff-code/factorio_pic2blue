@@ -133,11 +133,13 @@ class Check_board_class():
 
     def press_check(self):
         self.count = 0
+        self.pix_list.clear()
         self.color_list.clear()
         for i in self.check_int_dir:
             v = int(self.check_int_dir[i][0].get())
             if v == 1:
                 self.color_list.append(item_color_dir[self.check_int_dir[i][1]]['color'])
+                self.pix_list.append(self.check_int_dir[i][1])
                 self.count += v
         self.up()
 
@@ -153,6 +155,7 @@ class Check_board_class():
 
     def __init__(self,window,_side,up):
         self.color_list = []
+        self.pix_list = []
         self.count = 0
         self.up = up
         self.check_int_dir = {}
@@ -256,7 +259,7 @@ class my_pross_class():
         tkImage = ImageTk.PhotoImage(image=img)
         self.label_img = tk.Label(window, image=tkImage,bg='#111111',relief="groove",bd=4)
         self.label_img.pack(side=tk.LEFT)
-        self.update(50)
+        self.update(0)
 
     def update(self,value):
         img_rgb=self.img_array
