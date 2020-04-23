@@ -1,7 +1,8 @@
 import tkinter as tk
 from fac_dir import scale_dir1,scale_dir2,item_color_dir
-
-
+import numpy as np
+from PIL import Image, ImageTk
+import ctypes
 class ctr_topClass():
     def __init__(self, window, update):
         self.update = update
@@ -44,33 +45,37 @@ class scal_board_class():
 
     def init_scal_type1(self,window,_side,upall_img):
         row_counter = 0
-        self.f_SelectBoard = tk.Frame(window, borderwidth=2, relief="groove",bd=4)
+        self.f_SelectBoard = tk.Frame(window,bg='#444444')
         for i in self.scale_dir1:
             l = tk.Label(self.f_SelectBoard,
                      text=i,
-                     bg="pink",
+                     bg='#444444',
+                     fg='#FFFFFF',
                      font=("Arial", 10),
                      width=7,
-                     height=4)
+                     height=4,)
             l.grid(row=row_counter, column=0)
             s1 = tk.Scale(self.f_SelectBoard,
                       from_=1,
                       to=100,
+                      bg='#444444',
+                      fg='#FFFFFF',
                       length=800,
                       orient=tk.HORIZONTAL,
                       variable=scale_dir1[i],
                       command=upall_img)
             s1.grid(row=row_counter, column=1)
             row_counter += 1
-        self.f_SelectBoard.pack(side=_side)
+        self.f_SelectBoard.pack(anchor=tk.N)
 
     def init_scal_type2(self,window,_side,upall_img):
         row_counter = 0
-        self.f_SelectBoard = tk.Frame(window, borderwidth=2, relief="groove",bd=4)
+        self.f_SelectBoard = tk.Frame(window,bg='#444444')
         for i in self.scale_dir2:
             l = tk.Label(self.f_SelectBoard,
                      text=i,
-                     bg="pink",
+                     bg='#444444',
+                     fg='#FFFFFF',
                      font=("Arial", 10),
                      width=7,
                      height=4)
@@ -78,13 +83,15 @@ class scal_board_class():
             s1 = tk.Scale(self.f_SelectBoard,
                       from_=1,
                       to=100,
+                      bg='#444444',
+                      fg='#FFFFFF',
                       length=800,
                       orient=tk.HORIZONTAL,
                       variable=scale_dir2[i],
                       command=upall_img)
             s1.grid(row=row_counter, column=1)
             row_counter += 1
-        self.f_SelectBoard.pack(side=_side)
+        self.f_SelectBoard.pack(anchor=tk.N)
 
     def destroy(self):
         self.f_SelectBoard.destroy()
@@ -154,12 +161,14 @@ class Check_board_class():
 
         row_counter = 0
 
-        self.f_SelectBoard = tk.Frame(window, borderwidth=2, relief="groove",bd=4)
-        one = tk.Label(self.f_SelectBoard, text='材质选择面板')
+        self.f_SelectBoard = tk.Frame(window,bg='#444444')
+        one = tk.Label(self.f_SelectBoard,bg='#444444',
+                     fg='#FFFFFF', text='材质选择面板')
         one.grid(row=row_counter, column=0)
 
         row_counter += 1
-        one = tk.Label(self.f_SelectBoard, text='实体材质')
+        one = tk.Label(self.f_SelectBoard,bg='#444444',
+                     fg='#FFFFFF', text='实体材质')
         one.grid(row=row_counter, column=0)
 
         row_counter += 1
@@ -177,19 +186,22 @@ class Check_board_class():
                                     bd=4,
                                     relief=tk.RAISED,
                                     command=self.press_check)
-                one = tk.Label(self.f_SelectBoard, text=i["name"], width=15, anchor=tk.NW)
+                one = tk.Label(self.f_SelectBoard, text=i["name"], width=15, anchor=tk.NW,bg='#444444',fg='#FFFFFF')
                 one.grid(row=row_counter, column=1)
                 C1.grid(row=row_counter, column=0)
                 row_counter += 1
-        b = tk.Button(self.f_SelectBoard, text ="全选", command = self.set_all)
+        b = tk.Button(self.f_SelectBoard, text ="全选", bg='#BF7F00',
+                     fg='#FFFFFF',command = self.set_all)
         b.grid(row=row_counter, column=4)
 
-        b = tk.Button(self.f_SelectBoard, text ="清除", command = self.clr_all)
+        b = tk.Button(self.f_SelectBoard, text ="清除", bg='#B65663',
+                     fg='#FFFFFF',command = self.clr_all)
         b.grid(row=row_counter, column=5)
 
         row_counter = 1
 
-        one = tk.Label(self.f_SelectBoard, text='地板材质')
+        one = tk.Label(self.f_SelectBoard,bg='#444444',
+                     fg='#FFFFFF', text='地板材质')
         one.grid(row=row_counter, column=2)
 
         row_counter += 1
@@ -205,7 +217,8 @@ class Check_board_class():
                                     bd=4,
                                     relief=tk.RAISED,
                                     command=self.press_check)
-                one = tk.Label(self.f_SelectBoard, text=i["name"], width=15, anchor=tk.NW)
+                one = tk.Label(self.f_SelectBoard, text=i["name"],bg='#444444',
+                     fg='#FFFFFF', width=15, anchor=tk.NW)
                 one.grid(row=row_counter, column=3)
                 C1.grid(row=row_counter, column=2)
                 row_counter += 1
@@ -231,8 +244,40 @@ class Check_board_class():
 
 
 
+class my_pross_class():
+    def __init__(self,window,dll,high_,len_):
+        self.prss_value = 0
+        self.len_ = len_
+        self.high_ = high_
+        self.img_array = np.zeros((high_,len_,3),dtype=np.uint8)
+        self.dll = dll
+        img_rgb=self.img_array
+        img = Image.fromarray(img_rgb)
+        tkImage = ImageTk.PhotoImage(image=img)
+        self.label_img = tk.Label(window, image=tkImage,bg='#111111',relief="groove",bd=4)
+        self.label_img.pack(side=tk.LEFT)
+        self.update(50)
 
+    def update(self,value):
+        img_rgb=self.img_array
+        color_array = np.array([[225,158,53],[68,68,68]],dtype=np.uint8)
+        y,x,deep = img_rgb.shape
+        value = value*x/100
+        arg_array = np.array([x,y,value],dtype=np.long)
+        color_ptr = color_array.ctypes.data_as(ctypes.c_wchar_p)
+        img_ptr = img_rgb.ctypes.data_as(ctypes.c_wchar_p)
+        arg_ptr = arg_array.ctypes.data_as(ctypes.c_wchar_p)
+        self.dll.my_pross(img_ptr,color_ptr,arg_ptr)
+        img = Image.fromarray(img_rgb)
+        tkImage = ImageTk.PhotoImage(image=img)
+        self.label_img.configure(image=tkImage)
+        self.label_img.image = tkImage
 
 if __name__ == "__main__":
-    top = tk.Tk()
-    top.mainloop()
+    st = '#'
+    color = [225,158,53]
+    for i in range(0, 3):
+        n = color[i]
+        s = '{0:02x}'.format(n).upper()
+        st += s
+    print(st)

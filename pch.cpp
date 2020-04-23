@@ -2,7 +2,7 @@
 
 #include "pch.h"
 // 当使用预编译的头时，需要使用此源文件，编译才能成功。
-
+#include"stdio.h"
 typedef struct {
 	unsigned char b;
 	unsigned char g;
@@ -86,4 +86,67 @@ int img_not(unsigned char* imgPtr, unsigned char* mask,unsigned char* arg_ptr)
 				*(imgPtr + i) = 255;
 	}
 	return 0;
+}
+
+unsigned char repic_color(color_type* c1, color_type* listPtr)
+{
+	color_type* list_temp = listPtr;
+	unsigned char item_id = 0;
+	if (c1->b == 0)
+	{
+		list_temp = listPtr;
+		item_id = 0;
+	}
+	else
+	{
+		list_temp = listPtr+1;
+		item_id = 1;
+	}
+
+	c1->b = list_temp->b;
+	c1->g = list_temp->g;
+	c1->r = list_temp->r;
+	return item_id;
+}
+
+
+int img_2pick(unsigned char* imgPtr, unsigned char* listPtr, unsigned char* pix_ptr, unsigned char* arg_ptr)
+{
+	arg_type* arg = (arg_type*)arg_ptr;
+	long pix_number;
+	unsigned char item_id = 0;
+	for (pix_number = 0; pix_number < arg->pix_len; pix_number++)
+	{
+		item_id = repic_color((color_type*)(imgPtr)+pix_number, (color_type*)listPtr);
+		*(pix_ptr + pix_number) = item_id;
+	}
+	return 0;
+}
+
+int my_pross(unsigned char* imgPtr, unsigned char* colorPtr,unsigned char* arg_ptr)
+{
+	color_type* img = (color_type*)(imgPtr);
+	color_type* color = (color_type*)(colorPtr);
+	long* arg = (long*)arg_ptr;
+	long y = *arg;
+	long x = *(arg+1);
+	long cmp = *(arg+2);
+	long i, j;
+		for (i = 0; i < x; i++) {
+			for (j = 0; j < y; j++) {
+				if (j < cmp)
+				{
+					(img + i* y +  j)->b = color->b;
+					(img + i * y + j)->g = color->g;
+					(img + i * y + j)->r = color->r;
+				}
+				else
+				{
+					(img + i * y + j)->b = (color + 1)->b;
+					(img + i * y + j)->g = (color + 1)->g;
+					(img + i * y + j)->r = (color + 1)->r;
+				}
+			}
+		}
+		return 0;
 }

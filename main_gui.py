@@ -14,7 +14,7 @@ import numpy as np
 from PIL import Image, ImageTk
 from trans_class import gen_mat
 
-from gui_class import ctr_topClass
+from gui_class import ctr_topClass,my_pross_class
 from img_class import show_tkimg,img_transClass
 
 
@@ -28,7 +28,8 @@ class main_gui():
     def __init__(self):
         self.window = tk.Tk()
         self.window.title('图片转蓝图 V5.0')
-        # self.window.geometry("1024x768")
+        self.window.configure(background='#444444')
+        self.main_fram = tk.Frame(self.window,bg='#444444')
         self.img_trans=img_transClass()
         self.show_size = 200
         self.gen_matClass = gen_mat()
@@ -36,6 +37,7 @@ class main_gui():
         self.init_menu()
         self.init_face()
         self.window.bind("<MouseWheel>", self.resize)
+        self.main_fram.pack()
         self.window.mainloop()
 
     def resize(self,event):
@@ -137,31 +139,27 @@ class main_gui():
 
         img = Image.fromarray(self.or_img)
         tkImage = ImageTk.PhotoImage(image=img)
-        fm1 = tk.Frame(self.window)
-        self.label_img1 = tk.Label(fm1, image=tkImage)
+        fm1 = tk.Frame(self.main_fram,bg='#444444')
+        self.label_img1 = tk.Label(fm1, image=tkImage,bg='#444444')
         self.label_img1.pack(side=tk.LEFT)
-        self.label_img2 = tk.Label(fm1, image=tkImage)
+        self.label_img2 = tk.Label(fm1, image=tkImage,bg='#444444')
         self.label_img2.pack(side=tk.LEFT)
         fm1.pack()
 
-        self.ctr_board = tk.Frame(self.window)
+        self.ctr_board = tk.Frame(self.main_fram,borderwidth=2, bg='#444444',relief="groove",bd=4)
         self.ctr_top =ctr_topClass(self.ctr_board,self.upShow_img)
         self.ctr_board.pack()
 
-        fm3 = tk.Frame(self.window)
-        com = tk.Button(fm3, text='开始转换', command=self.start_go)
+        fm3 = tk.Frame(self.main_fram, bg='#444444')
+        com = tk.Button(fm3, text='开始转换', bg='#5EB663',
+                     fg='#000000',command=self.start_go)
         com.pack(side=tk.LEFT)
 
-        self.p1 = ttk.Progressbar(fm3,
-                                  length=1000,
-                                  mode="determinate",
-                                  orient=tk.HORIZONTAL)
-        self.p1.pack(side=tk.BOTTOM)
-        self.p1["maximum"] = 100
-        self.p1["value"] = 0
+        self.my_pross = my_pross_class(fm3,self.img_trans.dll,20,1000)
 
         fm3.pack(side=tk.BOTTOM)
-        com = tk.Button(self.window, text='支持一下，点击进入github(试试鼠标滚轮缩放？)', command=github)
+        com = tk.Button(self.main_fram, text='支持一下，点击进入github(试试鼠标滚轮缩放？)', bg='#444444',
+                     fg='#FFFFFF',command=github)
         com.pack(side=tk.BOTTOM)
         self.up_orimg()
         self.upShow_img()
