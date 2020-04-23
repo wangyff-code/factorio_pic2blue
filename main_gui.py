@@ -16,7 +16,6 @@ from trans_class import tras_blue
 
 from gui_class import ctr_topClass,my_pross_class
 from img_class import show_tkimg,img_transClass
-import time
 import copy
 
 def github():
@@ -27,9 +26,9 @@ def github():
 class main_gui():
     def __init__(self):
         self.window = tk.Tk()
-        self.window.title('图片转蓝图 V5.0')
+        self.window.title('图片转蓝图 V6.0')
         self.window.configure(background='#444444')
-        self.window.overrideredirect(True)
+        # self.window.overrideredirect(True)
         self.main_fram = tk.Frame(self.window,bg='#444444')
         self.img_trans=img_transClass()
         self.show_size = 400
@@ -51,10 +50,11 @@ class main_gui():
 
 
     def read_apartment(self):
-        f = open('ini.json', 'r')
-        data = f.read()
-        f.close()
-        var_list = json.loads(data)
+        pass
+        # f = open('ini.json', 'r')
+        # data = f.read()
+        # f.close()
+        # var_list = json.loads(data)
             
     def save_apartment(self):
         # f = open('ini.json', 'w')
@@ -119,8 +119,6 @@ class main_gui():
     def tras(self):
         pix_list = copy.deepcopy(self.ctr_top.Check_board.pix_list)
         pix_array = copy.deepcopy(self.pix_array)
-        print(pix_list)
-        print(pix_array)
         if len(pix_list) != 0:
             tras_blue(pix_list,pix_array,self.my_pross)
         else:
@@ -136,7 +134,7 @@ class main_gui():
         tkImage = ImageTk.PhotoImage(image=img)
 
         fm0 = tk.Frame(self.main_fram, bg='#333333',relief="groove",bd=4)
-        com = tk.Button(fm0, text='打开图片', bg='#5EB663',
+        com = tk.Button(fm0, text='  打开图片  ', bg='#5EB663',
                      fg='#000000',command=self.openfiles)
         com.pack(side=tk.LEFT)
 

@@ -60,14 +60,14 @@ class img_transClass():
                                     alpha=scale_dir2["亮度增益"].get()/50,
                                     beta =scale_dir2["亮度基准"].get()-50)
         arg_array = np.array(
-            [dim[0] * dim[1], len(color_list)], dtype=np.long)
-        resize = cv.cvtColor(resize,cv.COLOR_BGR2RGB)    
+            [dim[0] * dim[1], len(color_list)], dtype=np.long)  
         imgptr = resize.ctypes.data_as(ctypes.c_wchar_p)
         color_array = np.array(color_list,dtype=np.uint8)
         colorptr = color_array.ctypes.data_as(ctypes.c_wchar_p)
         arg_ptr = arg_array.ctypes.data_as(ctypes.c_wchar_p)
         pix_ptr = pix_array.ctypes.data_as(ctypes.c_wchar_p)
         self.dll.img_closePick(imgptr, colorptr, pix_ptr, arg_ptr)
+        resize = cv.cvtColor(resize,cv.COLOR_BGR2RGB) 
         return resize,pix_array
 
 
