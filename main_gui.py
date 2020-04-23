@@ -94,18 +94,18 @@ class main_gui():
         if len(color_list) == 1:
             color_list.append([255,255,255])
             img,pix_array=self.img_trans.up_img_1(self.or_img,check_int_dir,scale_dir1,color_list)
-            tkImage=show_tkimg(img,self.show_size,isBGR=True)
+            tkImage=show_tkimg(img,self.show_size,isBGR=False)
             self.label_img2.configure(image=tkImage)
             self.label_img2.image = tkImage
         if len(color_list) == 2:
             img,pix_array=self.img_trans.up_img_1(self.or_img,check_int_dir,scale_dir1,color_list)
-            tkImage=show_tkimg(img,self.show_size,isBGR=True)
+            tkImage=show_tkimg(img,self.show_size,isBGR=False)
             self.label_img2.configure(image=tkImage)
             self.label_img2.image = tkImage
 
         if len(color_list) > 2:
             img,pix_array=self.img_trans.up_img_2(self.or_img,check_int_dir,scale_dir2,color_list)
-            tkImage=show_tkimg(img,self.show_size,isBGR=True)
+            tkImage=show_tkimg(img,self.show_size,isBGR=False)
             self.label_img2.configure(image=tkImage)
             self.label_img2.image = tkImage
 
@@ -119,6 +119,8 @@ class main_gui():
     def tras(self):
         pix_list = copy.deepcopy(self.ctr_top.Check_board.pix_list)
         pix_array = copy.deepcopy(self.pix_array)
+        print(pix_list)
+        print(pix_array)
         if len(pix_list) != 0:
             tras_blue(pix_list,pix_array,self.my_pross)
         else:

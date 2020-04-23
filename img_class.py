@@ -61,6 +61,7 @@ class img_transClass():
                                     beta =scale_dir2["亮度基准"].get()-50)
         arg_array = np.array(
             [dim[0] * dim[1], len(color_list)], dtype=np.long)
+        resize = cv.cvtColor(resize,cv.COLOR_BGR2RGB)    
         imgptr = resize.ctypes.data_as(ctypes.c_wchar_p)
         color_array = np.array(color_list,dtype=np.uint8)
         colorptr = color_array.ctypes.data_as(ctypes.c_wchar_p)
